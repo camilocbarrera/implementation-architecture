@@ -31,7 +31,7 @@ function notify(service, event, port) {
     console.log('not')
     wss.clients.forEach(x => {
         console.log('not')
-        x.emit('{"service":' + service + ',"state":' + event + ',"port":' + port + '}');
+        x.send('{"service":"' + service + '","state":"' + event + '","port":' + port + '}');
     });
 }
 
