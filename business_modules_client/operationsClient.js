@@ -18,34 +18,34 @@ module.exports = {
                     client.on('connectFailed', function (error) {
                         console.log(x + ' Connect Error: ' + error.toString());
                         aviablePorts.push(x);
-                        module.exports.notify(service, 'disconnect', client.port);
+                        module.exports.notify(service, 'disconnect', x);
                     });
 
                     client.on('connect', function (connection) {
                         console.log('WebSocket Client Connected');
-                        module.exports.notify(service, 'connected', client.port);
+                        module.exports.notify(service, 'connected', x);
                         connectedPorts.push(x);
 
                         connection.on('error', function (error) {
                             console.log("Connection Error: " + error.toString());
                             aviablePorts.push(x);
-                            module.exports.notify(service, 'disconnect', client.port);
+                            module.exports.notify(service, 'disconnect', x);
                         });
 
                         connection.on('close', function () {
                             console.log('echo-protocol Connection Closed');
                             aviablePorts.push(x);
-                            module.exports.notify(service, 'disconnect', client.port);
+                            module.exports.notify(service, 'disconnect', x);
                         });
                     });
 
                     client.connect('ws://localhost:' + x + '/');
                 } catch {
                     console.log('c')
-                    module.exports.notify(service, 'disconnect', client.port);
+                    module.exports.notify(service, 'disconnect', x);
                 }
             }
-        }, 1000);
+        }, 300);
             
         
 
