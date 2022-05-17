@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+	  <script>
+		  //let HOST = "wss://sesocketapp.herokuapp.com/";
+		  let HOST = "ws://localhost:3000";
+		  let ws = new WebSocket(HOST);
+		  let el;
+
+		  ws.onmessage = (event) => {
+			  el = document.getElementById('server-time');
+			  let data = JSON.parse(event.data);
+			  el.innerHTML = 'El usuario con id ' + data.userId + ' ofertó ' + data.value;
+
+			  console.log(event.data);
+		  };
+
+		  ws.onclose = (event) =>{
+			  let ws = new WebSocket(HOST);
+		  }
+
+
+	  </script>
+
+  	<title>Implementación Arquitectura</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link href='https://fonts.googleapis.com/css?family=Roboto:400,100,300,700' rel='stylesheet' type='text/css'>
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	
+	<link rel="stylesheet" href="css/style.css">
+
+	</head>
+	<body>
+	<section class="ftco-section">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-6 text-center mb-5">
+					<h2 class="heading-section">Service Status</h2>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="table-wrap">
+						<table class="table table-striped">
+						  <thead>
+						    <tr>
+						      <th>Service id</th>
+						      <th>Service Name</th>
+						      <th>Status</th>
+						    </tr>
+						  </thead>
+						  <tbody>
+						    <tr>
+						      <th scope="row">1001</th>
+						      <td>Users</td>
+						      <td><a href="#" class="btn btn-success">Ok</a></td>
+						    </tr>
+
+						    <tr>
+						      <th scope="row">1002</th>
+						      <td>Accounts</td>
+								<td><a href="#" class="btn btn-success">Ok</a></td>
+						    </tr>
+
+						    <tr>
+						      <th scope="row">1003</th>
+						      <td>Operations</td>
+						      <td><a href="#" class="btn btn-danger">Error</a></td>
+						    </tr>
+
+
+						     <tr>
+						      <th scope="row">1004</th>
+						      <td>Consolidation</td>
+
+						      <td><a href="#" class="btn btn-danger">Error</a></td>
+						    </tr>
+
+
+						  </tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<script src="js/jquery.min.js"></script>
+  <script src="js/popper.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/main.js"></script>
+
+
+	</body>
+</html>
+
