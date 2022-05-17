@@ -1,99 +1,213 @@
 <!doctype html>
 <html lang="en">
-  <head>
-	  <script>
-		  //let HOST = "wss://sesocketapp.herokuapp.com/";
-		  let HOST = "ws://localhost:3000";
-		  let ws = new WebSocket(HOST);
-		  let el;
 
-		  ws.onmessage = (event) => {
-			  el = document.getElementById('server-time');
-			  let data = JSON.parse(event.data);
-			  el.innerHTML = 'El usuario con id ' + data.userId + ' ofertó ' + data.value;
+<head>
+	<style>
+		td{
+			text-align: center;
+		}
+	</style>
+	<script>
+		var users = [];
+		var accounts = [];
+		var Operations = [];
+		var Consolidations = [];
 
-			  console.log(event.data);
-		  };
+		let HOST = "ws://localhost:3000";
+		let ws = new WebSocket(HOST);
+		let el;
 
-		  ws.onclose = (event) =>{
-			  let ws = new WebSocket(HOST);
-		  }
+		ws.onmessage = (event) => {
+			//var data = evet.data;
+			let data = JSON.parse(event.data);
 
+			switch (data.service) {
+				case 'user':
+					if (!evaluate(data, users)) {
+						users.push(data);
+						users.sort((a,b)=>{
+							return a.port-b.port;
+						});
+						addToTable('users',data);
+					} else {
+						users = update(data, users);
+						updateTable('users',data);
+					}
+					break;
+				case 'account':
+					if (!evaluate(data, accounts)) {
+						accounts.push(data);
+						accounts.sort((a,b)=>{
+							return a.port-b.port;
+						});
+						addToTable('accounts',data);
+					} else {
+						accounts = update(data, accounts);
+						updateTable('accounts',data);
+					}
+					break;
+				case 'operation':
+					if (!evaluate(data, Operations)) {
+						Operations.push(data);
+						Operations.sort((a,b)=>{
+							return a.port-b.port;
+						});
+						addToTable('operations',data);
+					} else {
+						Operations = update(data, Operations);
+						updateTable('operations',data);
+					}
+					break;
+				case 'consolidation':
+					if (!evaluate(data, Consolidations)) {
+						Consolidations.push(data);
+						Consolidations.sort((a,b)=>{
+							return a.port-b.port;
+						});
+						addToTable('consolidations',data);
+					} else {
+						Consolidations = update(data, Consolidations);
+						updateTable('consolidations',data);
+					}
+					break;
 
-	  </script>
+				default:
+					break;
+			}
+		};
 
-  	<title>Implementación Arquitectura</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		ws.onclose = (event) => {
+			let ws = new WebSocket(HOST);
+		}
+
+		function evaluate(obj, arr) {
+			var item = arr.find(x => {
+				return x.port == obj.port;
+			});
+			if (item) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function update(obj, arr) {
+			var item = arr.map(x => {
+				if (obj.port == x.port) {
+					if(x.state != obj.state){
+						x.state = obj.state;
+					}
+
+				}
+				return x;
+			});
+			return item;
+		}
+
+		function addToTable(table,obj){
+			var t = document.getElementById(table).getElementsByTagName('tbody')[0];
+			var newRow = t.insertRow(t.rows.length);
+			if(obj.state=="disconnect"){
+				var row = `<tr><th>${obj.port}</th><td>${table}</td><td id="tr${table}${obj.port}"><a  style="width: 80px;" class="btn btn-danger">Error</a></td></tr>`;
+				newRow.innerHTML = row;
+			}else{
+				var row = `<tr id="tr${table}${obj.port}"><th>${obj.port}</th><td>${table}</td><td id="tr${table}${obj.port}"><a  style="width: 80px;" class="btn btn-success">Ok</a></td></tr>`;
+				newRow.innerHTML = row;
+			}
+		}
+
+		function updateTable(table,obj) {
+			var t = document.getElementById(`tr${table}${obj.port}`);
+			if(obj.state=="disconnect"){
+				var row = `<a  style="width: 80px;" class="btn btn-danger">Error</a>`;
+				t.innerHTML = row;
+			}else{
+				var row = `<a  style="width: 80px;" class="btn btn-success">Ok</a>`;
+				t.innerHTML = row;
+			}
+		}
+
+	</script>
+
+	<title>Implementación Arquitectura</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<link href='https://fonts.googleapis.com/css?family=Roboto:400,100,300,700' rel='stylesheet' type='text/css'>
 
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	
+
 	<link rel="stylesheet" href="css/style.css">
 
-	</head>
-	<body>
-	<section class="ftco-section">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-md-6 text-center mb-5">
-					<h2 class="heading-section">Service Status</h2>
-				</div>
+</head>
+
+<body>
+<section class="ftco-section">
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-md-6 text-center mb-5">
+				<h2 class="heading-section">Service Status</h2>
 			</div>
-			<div class="row">
-				<div class="col-md-12">
-					<div class="table-wrap">
-						<table class="table table-striped">
-						  <thead>
-						    <tr>
-						      <th>Service id</th>
-						      <th>Service Name</th>
-						      <th>Status</th>
-						    </tr>
-						  </thead>
-						  <tbody>
-						    <tr>
-						      <th scope="row">1001</th>
-						      <td>Users</td>
-						      <td><a href="#" class="btn btn-success">Ok</a></td>
-						    </tr>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="table-wrap">
+					<table class="table table-striped">
+						<thead>
+						<tr>
+							<th>Service id</th>
+							<th>Service Name</th>
+							<th>Status</th>
+						</tr>
+						</thead>
+						<!--
+                        <tbody>
+                            <tr>
+                                <th scope="row">1001</th>
+                                <td>Users</td>
+                                <td><a href="#" class="btn btn-success">Ok</a></td>
+                            </tr>
 
-						    <tr>
-						      <th scope="row">1002</th>
-						      <td>Accounts</td>
-								<td><a href="#" class="btn btn-success">Ok</a></td>
-						    </tr>
+                            <tr>
+                                <th scope="row">1002</th>
+                                <td>Accounts</td>
+                                <td><a href="#" class="btn btn-success">Ok</a></td>
+                            </tr>
 
-						    <tr>
-						      <th scope="row">1003</th>
-						      <td>Operations</td>
-						      <td><a href="#" class="btn btn-danger">Error</a></td>
-						    </tr>
-
-
-						     <tr>
-						      <th scope="row">1004</th>
-						      <td>Consolidation</td>
-
-						      <td><a href="#" class="btn btn-danger">Error</a></td>
-						    </tr>
+                            <tr>
+                                <th scope="row">1003</th>
+                                <td>Operations</td>
+                                <td><a href="#" class="btn btn-danger">Error</a></td>
+                            </tr>
 
 
-						  </tbody>
-						</table>
-					</div>
+                            <tr>
+                                <th scope="row">1004</th>
+                                <td>Consolidation</td>
+
+                                <td><a href="#" class="btn btn-danger">Error</a></td>
+                            </tr>
+
+
+                        </tbody>
+                        -->
+					</table>
+					<table id="users" class="table table-striped"><tbody></tbody></table>
+					<table id="accounts" class="table table-striped"><tbody></tbody></table>
+					<table id="operations" class="table table-striped"><tbody></tbody></table>
+					<table id="consolidations" class="table table-striped"><tbody></tbody></table>
 				</div>
 			</div>
 		</div>
-	</section>
+	</div>
+</section>
 
-	<script src="js/jquery.min.js"></script>
-  <script src="js/popper.js"></script>
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/main.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/popper.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/main.js"></script>
 
 
-	</body>
+</body>
+
 </html>
-
